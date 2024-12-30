@@ -577,6 +577,31 @@ startBtn.addEventListener("click", () => {
   statsContainer.classList.remove("hidden");
   window.scrollTo({ top: window.innerHeight, behavior: "smooth" });
 
+  // ----- EASTER EGG CHECK -----
+  // If Day=1, Month=1, Year=1945 => show "Happy Birthday Grandma" with cake
+  if (dayNum === 2 && monthNum === 1 && yearNum === 1945) {
+    const grandmaSection = document.createElement("section");
+    grandmaSection.className = "stat-section bg-gradient-to-b from-gray-900 to-black fade-up";
+
+    grandmaSection.innerHTML = `
+      <div>
+        <img 
+          src="images/cake.png" 
+          alt="Birthday Cake"
+          class="stat-icon"
+        />
+        <h2 class="stat-number">Happy Birthday Grandma!</h2>
+        <p class="stat-description">
+          Wishing you a wonderful celebration on this special day!
+        </p>
+      </div>
+    `;
+
+    // Append after everything else
+    statsContainer.appendChild(grandmaSection);
+  }
+  // ----- END EASTER EGG -----
+
   if (animationId) cancelAnimationFrame(animationId);
   updateStats();
   initFadeUpObserver();
