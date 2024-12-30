@@ -1,70 +1,125 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Your Life Journey</title>
-  
+
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
-  
-  <!-- Google Font: Inter -->
-  <link 
-    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" 
-    rel="stylesheet"
-  >
 
-  <!-- GSAP for Scroll Animations -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.0/gsap.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.0/ScrollTrigger.min.js"></script>
-  
-  <!-- Font Awesome for icons -->
-  <script 
-    src="https://kit.fontawesome.com/3ea1b243ba.js" 
-    crossorigin="anonymous"
+  <!-- Inter Font -->
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap"
+    rel="stylesheet"
+  />
+
+  <!-- GSAP for Animations -->
+  <script
+    src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.0/gsap.min.js"
+    defer
+  ></script>
+  <script
+    src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.0/ScrollTrigger.min.js"
+    defer
   ></script>
 
   <style>
+    /* 
+      Smooth snap scrolling for fullpage-like transitions.
+    */
+    html {
+      scroll-snap-type: y mandatory;
+      scroll-behavior: smooth;
+    }
     body {
-      font-family: 'Inter', sans-serif;
+      font-family: "Inter", sans-serif;
       background: #000;
-      color: white;
-      overflow-x: hidden;
+      color: #fff;
+      overflow-x: hidden; /* Prevent horizontal scroll */
       margin: 0;
       padding: 0;
     }
 
-    /* Each stat section occupies the full viewport. */
+    /*
+      Each section spans the full viewport height
+      and aligns contents centrally.
+    */
     .stat-section {
       height: 100vh;
+      scroll-snap-align: start;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
       text-align: center;
       position: relative;
+      padding: 2rem;
     }
 
+    /*
+      Ensuring images are centered, max-width is 300px for mobile,
+      scaled down while preserving aspect ratio to avoid overflow.
+    */
     .stat-icon {
-      font-size: 6rem;
-      margin-bottom: 2rem;
-      opacity: 0.9;
+      display: block;          
+      margin: 0 auto 2rem;    
+      width: 100%;            
+      max-width: 300px;       
+      height: auto;           
+      max-height: 750px;      
+      object-fit: cover;      
     }
 
     .stat-number {
-      font-size: 4rem;
+      font-size: 3rem;
       font-weight: 800;
       margin: 1rem 0;
       background: linear-gradient(45deg, #fff, #ccc);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
+      word-wrap: break-word;
+    }
+
+    @media (max-width: 640px) {
+      /* Reduce font size on smaller screens to avoid horizontal overflow */
+      .stat-number {
+        font-size: 2rem;
+      }
     }
 
     .stat-label {
-      font-size: 1.5rem;
-      opacity: 0.8;
-      max-width: 80%;
+      font-size: 1.8rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+    }
+
+    #monthInput {
+      width: 100px;
+    }
+
+    .stat-description {
+      font-size: 1.1rem;
+      opacity: 0.9;
+      max-width: 600px;
       margin: 0 auto;
+      line-height: 1.6;
+    }
+
+    .birth-input {
+      background: rgba(255, 255, 255, 0.1);
+      border: 2px solid rgba(255, 255, 255, 0.2);
+      border-radius: 8px;
+      color: white;
+      padding: 12px;
+      width: 80px;
+      text-align: center;
+      font-size: 1.2rem;
+      margin: 0 8px;
+    }
+    .birth-input:focus {
+      outline: none;
+      border-color: rgba(255, 255, 255, 0.4);
     }
 
     /* Fade-up animation classes */
@@ -77,288 +132,660 @@
       opacity: 1;
       transform: translateY(0);
     }
+
+    /* Custom scrollbar */
+    ::-webkit-scrollbar {
+      width: 10px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #000;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #333;
+      border-radius: 5px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #555;
+    }
   </style>
 </head>
-<body class="overflow-x-hidden">
+<body>
 
-<!-- 
-  ============= WELCOME SCREEN =============
-  (Enter birth date, click "Begin Journey") 
--->
-<section class="stat-section bg-black to-blue-900">
+<!-- Welcome Screen -->
+<section class="stat-section bg-black">
   <div class="p-6 text-center">
-    <h1 class="text-6xl font-bold mb-8">Your Life Journey</h1>
-    <input 
-      type="date" 
-      id="birthdayInput"
-      class="block w-64 mx-auto p-4 rounded-lg text-black mb-6 text-xl"
-    >
-    <button 
+    <h1 class="text-6xl font-bold mb-12">Your Life Journey</h1>
+    <div class="mb-8 flex flex-wrap justify-center">
+      <input
+        type="text"
+        id="dayInput"
+        placeholder="Day"
+        class="birth-input"
+        maxlength="2"
+        inputmode="numeric"
+        pattern="[0-9]*"
+      />
+      <input
+        type="text"
+        id="monthInput"
+        placeholder="Month"
+        class="birth-input"
+        maxlength="2"
+        inputmode="numeric"
+        pattern="[0-9]*"
+      />
+      <input
+        type="text"
+        id="yearInput"
+        placeholder="Year"
+        class="birth-input"
+        maxlength="4"
+        inputmode="numeric"
+        pattern="[0-9]*"
+      />
+    </div>
+    <button
       id="startBtn"
-      class="px-12 py-4 bg-white text-blue-900 text-xl font-bold rounded-lg hover:bg-gray-100 transition"
+      class="px-12 py-4 bg-white text-black text-xl font-bold rounded-lg hover:bg-gray-100 transition"
     >
       Begin Journey
     </button>
   </div>
 </section>
 
-<!-- 
-  ============= STATS CONTAINER =============
-  Hidden until user clicks "Begin Journey"
--->
+<!-- Dynamic Stats Container -->
 <div id="statsContainer" class="hidden">
 
-  <!-- 
-    HEARTBEATS 
-    ~1.2 beats per second
-  -->
-  <section class="stat-section bg-gradient-to-b from-red-900 to-red-700">
-    <div class="fade-up">
-      <i class="fa-solid fa-heart-pulse stat-icon"></i>
-      <div id="heartbeats" class="stat-number">0</div>
-      <div class="stat-label">Heartbeats</div>
-    </div>
-  </section>
-
-  <!-- 
-    RED BLOOD CELLS 
-    ~2 million RBCs per second
-  -->
-  <section class="stat-section bg-gradient-to-b from-pink-900 to-pink-700">
-    <div class="fade-up">
-      <i class="fa-solid fa-virus stat-icon"></i>
-      <div id="rbcProduced" class="stat-number">0</div>
-      <div class="stat-label">Red Blood Cells Produced</div>
-    </div>
-  </section>
-
-  <!-- 
-    BREATHS 
-    ~0.25 breaths per second (15/min)
-  -->
-  <section class="stat-section bg-gradient-to-b from-blue-900 to-blue-700">
-    <div class="fade-up">
-      <i class="fa-solid fa-lungs stat-icon"></i>
-      <div id="breathsTaken" class="stat-number">0</div>
-      <div class="stat-label">Breaths Taken</div>
-    </div>
-  </section>
-
-  <!-- 
-    DAYS ASLEEP 
-    ~1/3 of total life
-  -->
-  <section class="stat-section bg-gradient-to-b from-purple-900 to-purple-700">
-    <div class="fade-up">
-      <i class="fa-solid fa-bed stat-icon"></i>
-      <div id="daysAsleep" class="stat-number">0</div>
-      <div class="stat-label">Days Spent Sleeping</div>
-    </div>
-  </section>
-
-  <!-- 
-    DISTANCE AROUND THE SUN 
-    ~30 km/s
-  -->
-  <section class="stat-section bg-gradient-to-b from-green-900 to-green-700">
-    <div class="fade-up">
-      <i class="fa-solid fa-globe stat-icon"></i>
-      <div id="distanceSun" class="stat-number">0</div>
-      <div class="stat-label">Kilometers Around the Sun</div>
-    </div>
-  </section>
-
-  <!-- 
-    MOON ORBITS 
-    ~13 orbits/year
-  -->
+  <!-- Introduction / Days Since Birth -->
   <section class="stat-section bg-gradient-to-b from-gray-800 to-gray-900">
     <div class="fade-up">
-      <i class="fa-solid fa-moon stat-icon"></i>
-      <div id="moonOrbits" class="stat-number">0</div>
-      <div class="stat-label">Moon Orbits Witnessed</div>
+      <div id="daysSinceBirth" class="text-3xl font-bold mb-6"></div>
+      <p class="stat-description">
+        A lot has happened since the day you were born. 
+        Let's take a look at just how much has changed — both for you and the world.
+      </p>
     </div>
   </section>
 
-  <!-- 
-    COFFEE 
-    ~26,000 cups per second
-  -->
-  <section class="stat-section bg-gradient-to-b from-yellow-800 to-yellow-600">
+  <!-- Heartbeats + Blood Pumped -->
+  <section class="stat-section bg-gradient-to-b from-red-900 to-red-700">
     <div class="fade-up">
-      <i class="fa-solid fa-mug-saucer stat-icon"></i>
-      <div id="coffeesDrunk" class="stat-number">0</div>
-      <div class="stat-label">Global Cups of Coffee Consumed</div>
+      <img 
+        src="images/heart.gif" 
+        alt="Heart" 
+        class="stat-icon"
+      />
+      <div id="heartbeats" class="stat-number">0</div>
+      <div class="stat-label">Your heart has beaten about</div>
+      <p class="stat-description">
+        It’s also pumped about <span id="bloodPumped" class="font-bold"></span> liters of blood.
+      </p>
     </div>
   </section>
 
-  <!-- 
-    POPULATION GROWTH 
-    ~2.5 people per second (approx) 
-    or ~80 million / year
-  -->
-  <section class="stat-section bg-gradient-to-b from-emerald-900 to-emerald-700">
+  <!-- Red Blood Cells -->
+  <section class="stat-section bg-gradient-to-b from-pink-900 to-pink-700">
     <div class="fade-up">
-      <i class="fa-solid fa-people-group stat-icon"></i>
-      <div id="populationGrowth" class="stat-number">0</div>
-      <div class="stat-label">World Population Increase</div>
+      <img 
+        src="images/human-heart.png"
+        alt="Blood Cell"
+        class="stat-icon"
+      />
+      <div id="rbc" class="stat-number">0</div>
+      <div class="stat-label">Red Blood Cells Produced</div>
+      <p class="stat-description">
+        Your bone marrow produces ~2.4 million red blood cells per second, 
+        delivering oxygen and nutrients to every cell in your body.
+      </p>
     </div>
   </section>
 
-  <!-- 
-    INFLATION 
-    Illustrative 3% annual
-  -->
+  <!-- Saliva (Additional Stat) -->
+  <section class="stat-section bg-gradient-to-b from-amber-900 to-yellow-600">
+    <div class="fade-up">
+      <img 
+        src="images/saliva.png" 
+        alt="Saliva"
+        class="stat-icon"
+      />
+      <div id="saliva" class="stat-number">0</div>
+      <div class="stat-label">Liters of Saliva Produced</div>
+      <p class="stat-description">
+        The average person produces about 1.5 liters of saliva per day, 
+        helping you chew, swallow, and protect against germs.
+      </p>
+    </div>
+  </section>
+
+  <!-- Breaths -->
+  <section class="stat-section bg-gradient-to-b from-blue-900 to-blue-700">
+    <div class="fade-up">
+      <img 
+        src="images/breathing.png"
+        alt="Lungs"
+        class="stat-icon"
+      />
+      <div id="breaths" class="stat-number">0</div>
+      <div class="stat-label">You've taken about</div>
+      <p class="stat-description">
+        Each breath delivers vital oxygen to your cells and removes carbon dioxide. 
+        This simple act happens thousands of times a day, adding up over a lifetime.
+      </p>
+    </div>
+  </section>
+
+  <!-- Blinks -->
+  <section class="stat-section bg-gradient-to-b from-indigo-900 to-indigo-700">
+    <div class="fade-up">
+      <img 
+        src="images/blinking.gif"
+        alt="Eye"
+        class="stat-icon"
+      />
+      <div id="blinks" class="stat-number">0</div>
+      <div class="stat-label">You've blinked about</div>
+      <p class="stat-description">
+        Blinking keeps your eyes moist and free of debris. Humans blink about 15 to 20 times per minute.
+      </p>
+    </div>
+  </section>
+
+  <!-- Sleep -->
+  <section class="stat-section bg-gradient-to-b from-purple-900 to-purple-700">
+    <div class="fade-up">
+      <img 
+        src="images/sleeping.png"
+        alt="Sleeping"
+        class="stat-icon"
+      />
+      <div id="daysAsleep" class="stat-number">0</div>
+      <div class="stat-label">You've spent</div>
+      <p class="stat-description">
+        Days of your life asleep. Roughly one-third of your life is spent in slumber, 
+        crucial for memory consolidation, cellular repair, and more.
+      </p>
+    </div>
+  </section>
+
+  <!-- World Changes Intro -->
+  <section class="stat-section bg-gradient-to-b from-gray-800 to-gray-900">
+    <div class="fade-up">
+      <h2 class="text-3xl font-bold mb-6">You're not the only thing that's changed.</h2>
+      <p class="stat-description">
+        The world is a different place too.
+      </p>
+    </div>
+  </section>
+
+  <!-- Population -->
+  <section class="stat-section bg-gradient-to-b from-green-900 to-green-700">
+    <div class="fade-up">
+      <img 
+        src="images/population.png"
+        alt="Population"
+        class="stat-icon"
+      />
+      <div id="population" class="stat-number">0</div>
+      <div class="stat-label">More people on Earth</div>
+      <p class="stat-description">
+        The global population has expanded significantly in your lifetime.
+      </p>
+    </div>
+  </section>
+
+  <!-- CO2 -->
+  <section class="stat-section bg-gradient-to-b from-green-800 to-green-600">
+    <div class="fade-up">
+      <img 
+        src="images/co2.png"
+        alt="CO2"
+        class="stat-icon"
+      />
+      <div id="co2" class="stat-number">0%</div>
+      <div class="stat-label">More CO2 in the atmosphere</div>
+      <p class="stat-description">
+        Rising CO2 levels contribute to climate change, affecting ecosystems and weather patterns globally.
+      </p>
+    </div>
+  </section>
+
+  <!-- Inflation -->
   <section class="stat-section bg-gradient-to-b from-orange-900 to-orange-700">
     <div class="fade-up">
-      <i class="fa-solid fa-dollar-sign stat-icon"></i>
-      <div id="inflationValue" class="stat-number">$0</div>
-      <div class="stat-label">Today's Value of $1 From Birth Year</div>
+      <img 
+        src="images/money.png"
+        alt="Dollar"
+        class="stat-icon"
+      />
+      <div id="inflation" class="stat-number">$0</div>
+      <div class="stat-label">What $1.00 is now worth</div>
+      <p class="stat-description">
+        A dollar doesn’t buy what it used to. Inflation continuously alters 
+        the purchasing power of currency.
+      </p>
     </div>
   </section>
 
-  <!-- 
-    S&P 500 GROWTH 
-    Illustrative 10% annual
-  -->
+  <!-- S&P 500 -->
   <section class="stat-section bg-gradient-to-b from-teal-800 to-teal-600">
     <div class="fade-up">
-      <i class="fa-solid fa-chart-line stat-icon"></i>
-      <div id="spGrowth" class="stat-number">0</div>
-      <div class="stat-label">S&P 500 Growth (%)</div>
+      <img 
+        src="images/stock.png"
+        alt="Chart"
+        class="stat-icon"
+      />
+      <div id="sp500" class="stat-number">0%</div>
+      <div class="stat-label">S&P 500 Growth</div>
+      <p class="stat-description">
+        Historically, markets tend to rise over time, despite short-term fluctuations.
+      </p>
     </div>
   </section>
-</div> <!-- /statsContainer -->
+
+  <!-- Around the Sun -->
+  <section class="stat-section bg-gradient-to-b from-amber-900 to-amber-700">
+    <div class="fade-up">
+      <img 
+        src="images/orbitsun.gif"
+        alt="Sun"
+        class="stat-icon"
+      />
+      <div id="distanceSun" class="stat-number">0</div>
+      <div class="stat-label">Kilometers traveled around the Sun</div>
+      <p class="stat-description">
+        Earth orbits the Sun at an average speed of ~30 km/s, traveling nearly 
+        940 million km each year.
+      </p>
+    </div>
+  </section>
+
+  <!-- Around the Milky Way -->
+  <section class="stat-section bg-gradient-to-b from-blue-950 to-black">
+    <div class="fade-up">
+      <img 
+        src="images/galaxy.png"
+        alt="Milky Way"
+        class="stat-icon"
+      />
+      <div id="distanceMilkyWay" class="stat-number">0</div>
+      <div class="stat-label">Kilometers traveled around the Milky Way</div>
+      <p class="stat-description">
+        Our solar system orbits the galactic center at about 220 km/s — 
+        meaning you're constantly in motion through space.
+      </p>
+    </div>
+  </section>
+
+  <!-- Moon Orbits -->
+  <section class="stat-section bg-gradient-to-b from-gray-700 to-gray-800">
+    <div class="fade-up">
+      <img 
+        src="images/orbitearth.gif"
+        alt="Moon"
+        class="stat-icon"
+      />
+      <div id="moonOrbits" class="stat-number">0</div>
+      <div class="stat-label">Moon orbits in your lifetime</div>
+      <p class="stat-description">
+        The Moon orbits Earth approximately every 27.3 days, shaping tides and 
+        quietly marking the passing months.
+      </p>
+    </div>
+  </section>
+
+  <!-- Moon Distance -->
+  <section class="stat-section bg-gradient-to-b from-slate-800 to-black">
+    <div class="fade-up">
+      <img 
+        src="images/orbitearth.gif"
+        alt="Moon Distance"
+        class="stat-icon"
+      />
+      <div id="moonDistance" class="stat-number">0</div>
+      <div class="stat-label">Centimeters further away</div>
+      <p class="stat-description">
+        The Moon drifts ~3.8 cm away from Earth each year. 
+        It's already <span id="moonAwayYears" class="font-bold"></span> cm further than when you were born.
+      </p>
+    </div>
+  </section>
+
+  <!-- Good News (Dynamic) -->
+  <section class="stat-section bg-gradient-to-b from-yellow-800 to-yellow-600">
+    <div class="fade-up">
+      <h2 class="text-3xl font-bold mb-6">Here on Earth we often feel things are getting worse. But in your lifetime...</h2>
+      <p class="stat-description">
+        <span id="poverty" class="block mb-4"></span>
+        <span id="literacy" class="block mb-4"></span>
+        <span id="lifeExpectancy" class="block mb-4"></span>
+      </p>
+    </div>
+  </section>
+
+</div>
 
 <script>
-/**************************************************
- * 1. Basic Rates & Calculations
- **************************************************/
-const RATES = {
-  heartBeatsPerSec: 1.2,       // ~72 BPM
-  rbcPerSec: 2_000_000,        // RBC produced / second
-  breathsPerSec: 0.25,         // ~15 breaths/min
-  fractionLifeAsleep: 1/3,     // ~1/3 of total life sleeping
-  distanceSunPerSec: 30,       // ~30 km/s
-  moonOrbitsPerYear: 13,       
-  coffeesPerSec: 26000,        // ~26k cups / second
-  populationGrowthPerYear: 80_000_000, // ~2.5 people/sec 
-  inflationAnnualRate: 0.03,   // 3% yearly
-  sp500AnnualGrowth: 0.10,     // 10% yearly
-};
+/**
+ * ------------
+ * RATE CONSTANTS
+ * ------------
+ * Adjust these to tweak approximations.
+ */
+// 1) Personal stats
+const HEART_RATE_BPM         = 80;        // average beats per minute
+const LITERS_BLOOD_PER_DAY   = 7500;      // ~7500 L/day
+const RBC_PER_SEC            = 2_400_000; // ~2.4 million RBC/sec
+const BREATHS_PER_MIN        = 16;        // typical adult: 12-20/min
+const BLINKS_PER_MIN         = 15;        // ~15-20/min
+const FRACTION_LIFE_ASLEEP   = 1/3;       // ~1/3 life asleep
+const SALIVA_LITERS_PER_DAY  = 1.5;       // ~1.5 L saliva/day
 
-/**************************************************
- * 2. HTML Elements & Logic
- **************************************************/
+// 2) Earth & cosmic stats
+const EARTH_ORBIT_PER_DAY    = 2.57e6;    // ~2.57 million km/day
+const MILKYWAY_ORBIT_PER_DAY = 19e6;      // ~19 million km/day
+const MOON_ORBIT_DAYS        = 27.3;      // ~27.3 days/orbit
+const MOON_DRIFT_CM_PER_YEAR = 3.8;       // ~3.8 cm/year
+
+// 3) World changes (approximations)
+const POPULATION_2024        = 8.04e9;    // ~8.04B in 2024
+const ANNUAL_POP_GROWTH      = 0.011;     // 1.1% yearly
+const CO2_2024               = 420;       // 420 ppm
+const CO2_1900               = 300;       // 300 ppm in 1900
+const ANNUAL_INFLATION       = 0.03;      // 3% average
+const ANNUAL_SP500_GROWTH    = 0.10;      // 10% average S&P growth
+
+// Good news stats
+// In 1900 => 80% extreme poverty, 2024 => 8%
+const POVERTY_1900           = 80;
+const POVERTY_2024           = 8;
+// In 1900 => 21% literacy, 2024 => 87%
+const LITERACY_1900          = 21;
+const LITERACY_2024          = 87;
+// Life expectancy: 1900 => 31 yrs, 2024 => ~73 yrs
+const LIFEEXP_1900           = 31;
+const LIFEEXP_2024           = 73;
+
 let birthDate = null;
 let animationId = null;
 
-const birthdayInput = document.getElementById('birthdayInput');
-const startBtn = document.getElementById('startBtn');
-const statsContainer = document.getElementById('statsContainer');
+// Input validation: numeric only
+function setupInputValidation(input) {
+  input.addEventListener("input", function() {
+    this.value = this.value.replace(/[^\d]/g, "");
+  });
+  input.addEventListener("wheel", function(e) {
+    e.preventDefault();
+  });
+}
+const dayInput   = document.getElementById("dayInput");
+const monthInput = document.getElementById("monthInput");
+const yearInput  = document.getElementById("yearInput");
+const startBtn   = document.getElementById("startBtn");
+const statsContainer = document.getElementById("statsContainer");
+[dayInput, monthInput, yearInput].forEach(setupInputValidation);
 
-startBtn.addEventListener('click', () => {
-  if (!birthdayInput.value) {
-    alert('Please enter your birth date!');
+// Start button
+startBtn.addEventListener("click", () => {
+  const day   = dayInput.value.trim();
+  const month = monthInput.value.trim();
+  const year  = yearInput.value.trim();
+
+  if (!day || !month || !year) {
+    alert("Please enter a complete birth date!");
     return;
   }
-  birthDate = new Date(birthdayInput.value);
-  if (birthDate > new Date()) {
-    alert('Birth date cannot be in the future!');
+
+  const dayNum   = parseInt(day, 10);
+  const monthNum = parseInt(month, 10);
+  const yearNum  = parseInt(year, 10);
+
+  // Basic range checks
+  if (isNaN(dayNum) || dayNum < 1 || dayNum > 31) {
+    alert("Please enter a valid day (1-31).");
+    return;
+  }
+  if (isNaN(monthNum) || monthNum < 1 || monthNum > 12) {
+    alert("Please enter a valid month (1-12).");
+    return;
+  }
+  const currentYear = new Date().getFullYear();
+  if (isNaN(yearNum) || yearNum < 1900 || yearNum > currentYear) {
+    alert(`Please enter a valid year (1900-${currentYear}).`);
     return;
   }
 
-  // Reveal stats container
-  statsContainer.classList.remove('hidden');
+  // Validate date
+  const birthDateObj = new Date(yearNum, monthNum - 1, dayNum);
+  if (
+    birthDateObj.getFullYear() !== yearNum ||
+    birthDateObj.getMonth() !== (monthNum - 1) ||
+    birthDateObj.getDate() !== dayNum
+  ) {
+    alert("Please enter a valid date!");
+    return;
+  }
 
-  // Scroll down to first stat
-  window.scrollTo({ top: window.innerHeight, behavior: 'smooth' });
+  // Ensure not future date
+  const now = new Date();
+  if (birthDateObj > now) {
+    alert("Birth date cannot be in the future!");
+    return;
+  }
 
-  // Start the live updates
+  // All good
+  birthDate = birthDateObj;
+  statsContainer.classList.remove("hidden");
+  window.scrollTo({ top: window.innerHeight, behavior: "smooth" });
+
   if (animationId) cancelAnimationFrame(animationId);
   updateStats();
   initFadeUpObserver();
 });
 
-/**************************************************
- * 3. Stats Updater (Real-time)
- **************************************************/
+/**
+ * Main loop to recalc stats continuously
+ */
 function updateStats() {
-  const seconds = getSecondsSinceBirth();
-  const years = seconds / (365.25 * 24 * 3600);
+  const now = new Date();
+  let diffMs = now - birthDate;
+  if (diffMs < 0) diffMs = 0;
+
+  const days  = diffMs / (1000 * 60 * 60 * 24);
+  const years = days / 365.25;
+
+  // Days since birth
+  const daysSinceBirth = Math.floor(days).toLocaleString();
+  document.getElementById("daysSinceBirth").innerText =
+    `A lot has happened in the ${daysSinceBirth} days since you were born.`;
 
   // Heartbeats
-  document.getElementById('heartbeats').innerText = formatNumber(
-    seconds * RATES.heartBeatsPerSec
-  );
+  const heartBeatsPerDay = HEART_RATE_BPM * 60 * 24;
+  const totalHeartBeats  = days * heartBeatsPerDay;
+  document.getElementById("heartbeats").innerText =
+    formatNumber(totalHeartBeats);
+
+  // Blood pumped
+  const totalLitersBlood = days * LITERS_BLOOD_PER_DAY;
+  document.getElementById("bloodPumped").innerText =
+    formatNumber(totalLitersBlood);
+
   // RBC
-  document.getElementById('rbcProduced').innerText = formatNumber(
-    seconds * RATES.rbcPerSec
-  );
+  const rbcPerDay = RBC_PER_SEC * 86400;
+  const totalRbc  = days * rbcPerDay;
+  document.getElementById("rbc").innerText =
+    formatNumber(totalRbc);
+
+  // Saliva
+  const totalSaliva = days * SALIVA_LITERS_PER_DAY;
+  document.getElementById("saliva").innerText =
+    formatNumber(totalSaliva);
+
   // Breaths
-  document.getElementById('breathsTaken').innerText = formatNumber(
-    seconds * RATES.breathsPerSec
-  );
+  const breathsPerDay = BREATHS_PER_MIN * 60 * 24;
+  const totalBreaths  = days * breathsPerDay;
+  document.getElementById("breaths").innerText =
+    formatNumber(totalBreaths);
+
+  // Blinks
+  const blinksPerDay = BLINKS_PER_MIN * 60 * 24;
+  const totalBlinks  = days * blinksPerDay;
+  document.getElementById("blinks").innerText =
+    formatNumber(totalBlinks);
+
   // Days asleep
-  const daysOfLife = seconds / 86400;
-  document.getElementById('daysAsleep').innerText = formatNumber(
-    daysOfLife * RATES.fractionLifeAsleep
-  );
-  // Distance around Sun
-  document.getElementById('distanceSun').innerText = formatNumber(
-    seconds * RATES.distanceSunPerSec
-  );
-  // Moon orbits
-  document.getElementById('moonOrbits').innerText = formatNumber(
-    years * RATES.moonOrbitsPerYear
-  );
-  // Coffee
-  document.getElementById('coffeesDrunk').innerText = formatNumber(
-    seconds * RATES.coffeesPerSec
-  );
-  // Population Growth
-  const populationIncrease = years * RATES.populationGrowthPerYear;
-  document.getElementById('populationGrowth').innerText = formatNumber(
-    populationIncrease
-  );
+  const asleep = days * FRACTION_LIFE_ASLEEP;
+  document.getElementById("daysAsleep").innerText =
+    formatNumber(asleep);
+
+  /********************************
+   * World changes
+   *******************************/
+  const birthYear = birthDate.getFullYear();
+  const clampYear = Math.min(Math.max(birthYear, 1900), 2024);
+
+  // Population difference
+  const yearsFromBirthTo2024 = Math.max(0, 2024 - birthYear);
+  const popBirthYear = POPULATION_2024 / Math.exp(ANNUAL_POP_GROWTH * yearsFromBirthTo2024);
+  const popDiff = POPULATION_2024 - popBirthYear;
+  document.getElementById("population").innerText =
+    formatNumber(popDiff);
+
+  // CO2 difference
+  const totalYearsSpan = 2024 - 1900;
+  const co2RatePerYear = (CO2_2024 - CO2_1900) / totalYearsSpan;
+  const co2BirthYear = CO2_1900 + (clampYear - 1900) * co2RatePerYear;
+  const co2PercentDiff = ((CO2_2024 - co2BirthYear) / co2BirthYear) * 100;
+  document.getElementById("co2").innerText =
+    `${co2PercentDiff.toFixed(1)}%`;
+
   // Inflation
-  const inflationMultiplier = Math.pow(1 + RATES.inflationAnnualRate, years);
-  document.getElementById('inflationValue').innerText = 
-    '$' + inflationMultiplier.toFixed(2);
+  const inflYears = Math.max(0, 2024 - clampYear);
+  const inflationFactor = Math.pow(1 + ANNUAL_INFLATION, inflYears);
+  document.getElementById("inflation").innerText =
+    `$${inflationFactor.toFixed(2)}`;
+
   // S&P 500
-  const spMultiplier = Math.pow(1 + RATES.sp500AnnualGrowth, years) - 1;
-  document.getElementById('spGrowth').innerText = 
-    (spMultiplier * 100).toFixed(1);
+  const spYears = Math.max(0, 2024 - clampYear);
+  const spFactor = Math.pow(1 + ANNUAL_SP500_GROWTH, spYears) - 1;
+  document.getElementById("sp500").innerText =
+    `${(spFactor * 100).toFixed(0)}%`;
+
+  // Distances
+  const distanceSunVal = days * EARTH_ORBIT_PER_DAY;
+  document.getElementById("distanceSun").innerText =
+    `${formatNumber(distanceSunVal)} km`;
+
+  const distanceMWVal = days * MILKYWAY_ORBIT_PER_DAY;
+  document.getElementById("distanceMilkyWay").innerText =
+    `${formatNumber(distanceMWVal)} km`;
+
+  const moonOrbitsVal = days / MOON_ORBIT_DAYS;
+  document.getElementById("moonOrbits").innerText =
+    formatNumber(moonOrbitsVal);
+
+  // Moon distance
+  const driftYears = Math.max(0, (new Date()).getFullYear() - clampYear);
+  const moonDistanceVal = driftYears * MOON_DRIFT_CM_PER_YEAR;
+  document.getElementById("moonDistance").innerText =
+    formatNumber(moonDistanceVal) + " cm";
+  document.getElementById("moonAwayYears").innerText =
+    formatNumber(moonDistanceVal);
+
+  // Good news (dynamic)
+  const povertySlope    = (POVERTY_2024 - POVERTY_1900) / (2024 - 1900);
+  const povertyYearVal  = POVERTY_1900 + (clampYear - 1900) * povertySlope;
+  const povertyDelta    = povertyYearVal - POVERTY_2024;
+  const actualPovertyDelta = Math.max(0, povertyDelta.toFixed(1));
+  document.getElementById("poverty").innerText =
+    `The amount of humans living in extreme poverty decreased about ${actualPovertyDelta}% since you were born.`;
+
+  const literacySlope   = (LITERACY_2024 - LITERACY_1900) / (2024 - 1900);
+  const literacyYearVal = LITERACY_1900 + (clampYear - 1900) * literacySlope;
+  const literacyDelta   = LITERACY_2024 - literacyYearVal;
+  const actualLitDelta  = Math.max(0, literacyDelta.toFixed(1));
+  document.getElementById("literacy").innerText =
+    `The world literacy rate went up about ${actualLitDelta}% in your lifetime.`;
+
+  const lifeExpSlope    = (LIFEEXP_2024 - LIFEEXP_1900) / (2024 - 1900);
+  const lifeExpYearVal  = LIFEEXP_1900 + (clampYear - 1900) * lifeExpSlope;
+  const lifeExpDelta    = LIFEEXP_2024 - lifeExpYearVal;
+  const actualLifeExpDelta = Math.max(0, lifeExpDelta.toFixed(1));
+  document.getElementById("lifeExpectancy").innerText =
+    `Life expectancy went up about ${actualLifeExpDelta} years for all people.`;
 
   animationId = requestAnimationFrame(updateStats);
 }
 
-function getSecondsSinceBirth() {
-  if (!birthDate) return 0;
-  return (Date.now() - birthDate.getTime()) / 1000;
-}
-
+/**
+ * formatNumber - nicely format a large integer with commas
+ */
 function formatNumber(num) {
   return Math.floor(num).toLocaleString();
 }
 
-/**************************************************
- * 4. Fade-up Animation Observer
- **************************************************/
+/**
+ * initFadeUpObserver - sets up intersection observer for fade-up
+ */
 function initFadeUpObserver() {
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        entry.target.classList.add('visible');
-      }
-    });
-  }, { threshold: 0.1 });
-
-  document.querySelectorAll('.fade-up').forEach((el) => {
+  const observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add("visible");
+        }
+      });
+    },
+    { threshold: 0.1, rootMargin: "0px 0px -10% 0px" }
+  );
+  document.querySelectorAll(".fade-up").forEach((el) => {
     observer.observe(el);
   });
 }
-</script>
 
+// Smooth scrolling with wheel
+document.addEventListener("wheel", (e) => {
+  e.preventDefault();
+  const delta = e.deltaY;
+  const currentSection = document
+    .elementFromPoint(window.innerWidth / 2, window.innerHeight / 2)
+    ?.closest(".stat-section");
+  if (!currentSection) return;
+  const sections = Array.from(document.querySelectorAll(".stat-section"));
+  const currentIndex = sections.indexOf(currentSection);
+  let targetSection;
+  if (delta > 0 && currentIndex < sections.length - 1) {
+    targetSection = sections[currentIndex + 1];
+  } else if (delta < 0 && currentIndex > 0) {
+    targetSection = sections[currentIndex - 1];
+  }
+  if (targetSection) {
+    targetSection.scrollIntoView({ behavior: "smooth" });
+  }
+}, { passive: false });
+
+// Keyboard nav
+document.addEventListener("keydown", (e) => {
+  const sections = Array.from(document.querySelectorAll(".stat-section"));
+  const currentSection = document
+    .elementFromPoint(window.innerWidth / 2, window.innerHeight / 2)
+    ?.closest(".stat-section");
+  if (!currentSection) return;
+  const currentIndex = sections.indexOf(currentSection);
+  let targetSection;
+  if (["ArrowDown", "PageDown"].includes(e.key)) {
+    if (currentIndex < sections.length - 1) {
+      targetSection = sections[currentIndex + 1];
+    }
+  } else if (["ArrowUp", "PageUp"].includes(e.key)) {
+    if (currentIndex > 0) {
+      targetSection = sections[currentIndex - 1];
+    }
+  }
+  if (targetSection) {
+    e.preventDefault();
+    targetSection.scrollIntoView({ behavior: "smooth" });
+  }
+});
+</script>
 </body>
 </html>
