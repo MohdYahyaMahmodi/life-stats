@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Your Life Journey</title>
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Google Font: Inter -->
+  <link 
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" 
+    rel="stylesheet"
+  >
+
+  <!-- GSAP for Scroll Animations -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.0/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.0/ScrollTrigger.min.js"></script>
+  
+  <!-- Font Awesome for icons -->
+  <script 
+    src="https://kit.fontawesome.com/3ea1b243ba.js" 
+    crossorigin="anonymous"
+  ></script>
+
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #000;
+      color: white;
+      overflow-x: hidden;
+      margin: 0;
+      padding: 0;
+    }
+
+    /* Each stat section occupies the full viewport. */
+    .stat-section {
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      position: relative;
+    }
+
+    .stat-icon {
+      font-size: 6rem;
+      margin-bottom: 2rem;
+      opacity: 0.9;
+    }
+
+    .stat-number {
+      font-size: 4rem;
+      font-weight: 800;
+      margin: 1rem 0;
+      background: linear-gradient(45deg, #fff, #ccc);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .stat-label {
+      font-size: 1.5rem;
+      opacity: 0.8;
+      max-width: 80%;
+      margin: 0 auto;
+    }
+
+    /* Fade-up animation classes */
+    .fade-up {
+      opacity: 0;
+      transform: translateY(30px);
+      transition: all 0.8s ease-out;
+    }
+    .visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  </style>
+</head>
+<body class="overflow-x-hidden">
+
+<!-- 
+  ============= WELCOME SCREEN =============
+  (Enter birth date, click "Begin Journey") 
+-->
+<section class="stat-section bg-black to-blue-900">
+  <div class="p-6 text-center">
+    <h1 class="text-6xl font-bold mb-8">Your Life Journey</h1>
+    <input 
+      type="date" 
+      id="birthdayInput"
+      class="block w-64 mx-auto p-4 rounded-lg text-black mb-6 text-xl"
+    >
+    <button 
+      id="startBtn"
+      class="px-12 py-4 bg-white text-blue-900 text-xl font-bold rounded-lg hover:bg-gray-100 transition"
+    >
+      Begin Journey
+    </button>
+  </div>
+</section>
+
+<!-- 
+  ============= STATS CONTAINER =============
+  Hidden until user clicks "Begin Journey"
+-->
+<div id="statsContainer" class="hidden">
+
+  <!-- 
+    HEARTBEATS 
+    ~1.2 beats per second
+  -->
+  <section class="stat-section bg-gradient-to-b from-red-900 to-red-700">
+    <div class="fade-up">
+      <i class="fa-solid fa-heart-pulse stat-icon"></i>
+      <div id="heartbeats" class="stat-number">0</div>
+      <div class="stat-label">Heartbeats</div>
+    </div>
+  </section>
+
+  <!-- 
+    RED BLOOD CELLS 
+    ~2 million RBCs per second
+  -->
+  <section class="stat-section bg-gradient-to-b from-pink-900 to-pink-700">
+    <div class="fade-up">
+      <i class="fa-solid fa-virus stat-icon"></i>
+      <div id="rbcProduced" class="stat-number">0</div>
+      <div class="stat-label">Red Blood Cells Produced</div>
+    </div>
+  </section>
+
+  <!-- 
+    BREATHS 
+    ~0.25 breaths per second (15/min)
+  -->
+  <section class="stat-section bg-gradient-to-b from-blue-900 to-blue-700">
+    <div class="fade-up">
+      <i class="fa-solid fa-lungs stat-icon"></i>
+      <div id="breathsTaken" class="stat-number">0</div>
+      <div class="stat-label">Breaths Taken</div>
+    </div>
+  </section>
+
+  <!-- 
+    DAYS ASLEEP 
+    ~1/3 of total life
+  -->
+  <section class="stat-section bg-gradient-to-b from-purple-900 to-purple-700">
+    <div class="fade-up">
+      <i class="fa-solid fa-bed stat-icon"></i>
+      <div id="daysAsleep" class="stat-number">0</div>
+      <div class="stat-label">Days Spent Sleeping</div>
+    </div>
+  </section>
+
+  <!-- 
+    DISTANCE AROUND THE SUN 
+    ~30 km/s
+  -->
+  <section class="stat-section bg-gradient-to-b from-green-900 to-green-700">
+    <div class="fade-up">
+      <i class="fa-solid fa-globe stat-icon"></i>
+      <div id="distanceSun" class="stat-number">0</div>
+      <div class="stat-label">Kilometers Around the Sun</div>
+    </div>
+  </section>
+
+  <!-- 
+    MOON ORBITS 
+    ~13 orbits/year
+  -->
+  <section class="stat-section bg-gradient-to-b from-gray-800 to-gray-900">
+    <div class="fade-up">
+      <i class="fa-solid fa-moon stat-icon"></i>
+      <div id="moonOrbits" class="stat-number">0</div>
+      <div class="stat-label">Moon Orbits Witnessed</div>
+    </div>
+  </section>
+
+  <!-- 
+    COFFEE 
+    ~26,000 cups per second
+  -->
+  <section class="stat-section bg-gradient-to-b from-yellow-800 to-yellow-600">
+    <div class="fade-up">
+      <i class="fa-solid fa-mug-saucer stat-icon"></i>
+      <div id="coffeesDrunk" class="stat-number">0</div>
+      <div class="stat-label">Global Cups of Coffee Consumed</div>
+    </div>
+  </section>
+
+  <!-- 
+    POPULATION GROWTH 
+    ~2.5 people per second (approx) 
+    or ~80 million / year
+  -->
+  <section class="stat-section bg-gradient-to-b from-emerald-900 to-emerald-700">
+    <div class="fade-up">
+      <i class="fa-solid fa-people-group stat-icon"></i>
+      <div id="populationGrowth" class="stat-number">0</div>
+      <div class="stat-label">World Population Increase</div>
+    </div>
+  </section>
+
+  <!-- 
+    INFLATION 
+    Illustrative 3% annual
+  -->
+  <section class="stat-section bg-gradient-to-b from-orange-900 to-orange-700">
+    <div class="fade-up">
+      <i class="fa-solid fa-dollar-sign stat-icon"></i>
+      <div id="inflationValue" class="stat-number">$0</div>
+      <div class="stat-label">Today's Value of $1 From Birth Year</div>
+    </div>
+  </section>
+
+  <!-- 
+    S&P 500 GROWTH 
+    Illustrative 10% annual
+  -->
+  <section class="stat-section bg-gradient-to-b from-teal-800 to-teal-600">
+    <div class="fade-up">
+      <i class="fa-solid fa-chart-line stat-icon"></i>
+      <div id="spGrowth" class="stat-number">0</div>
+      <div class="stat-label">S&P 500 Growth (%)</div>
+    </div>
+  </section>
+</div> <!-- /statsContainer -->
+
+<script>
+/**************************************************
+ * 1. Basic Rates & Calculations
+ **************************************************/
+const RATES = {
+  heartBeatsPerSec: 1.2,       // ~72 BPM
+  rbcPerSec: 2_000_000,        // RBC produced / second
+  breathsPerSec: 0.25,         // ~15 breaths/min
+  fractionLifeAsleep: 1/3,     // ~1/3 of total life sleeping
+  distanceSunPerSec: 30,       // ~30 km/s
+  moonOrbitsPerYear: 13,       
+  coffeesPerSec: 26000,        // ~26k cups / second
+  populationGrowthPerYear: 80_000_000, // ~2.5 people/sec 
+  inflationAnnualRate: 0.03,   // 3% yearly
+  sp500AnnualGrowth: 0.10,     // 10% yearly
+};
+
+/**************************************************
+ * 2. HTML Elements & Logic
+ **************************************************/
+let birthDate = null;
+let animationId = null;
+
+const birthdayInput = document.getElementById('birthdayInput');
+const startBtn = document.getElementById('startBtn');
+const statsContainer = document.getElementById('statsContainer');
+
+startBtn.addEventListener('click', () => {
+  if (!birthdayInput.value) {
+    alert('Please enter your birth date!');
+    return;
+  }
+  birthDate = new Date(birthdayInput.value);
+  if (birthDate > new Date()) {
+    alert('Birth date cannot be in the future!');
+    return;
+  }
+
+  // Reveal stats container
+  statsContainer.classList.remove('hidden');
+
+  // Scroll down to first stat
+  window.scrollTo({ top: window.innerHeight, behavior: 'smooth' });
+
+  // Start the live updates
+  if (animationId) cancelAnimationFrame(animationId);
+  updateStats();
+  initFadeUpObserver();
+});
+
+/**************************************************
+ * 3. Stats Updater (Real-time)
+ **************************************************/
+function updateStats() {
+  const seconds = getSecondsSinceBirth();
+  const years = seconds / (365.25 * 24 * 3600);
+
+  // Heartbeats
+  document.getElementById('heartbeats').innerText = formatNumber(
+    seconds * RATES.heartBeatsPerSec
+  );
+  // RBC
+  document.getElementById('rbcProduced').innerText = formatNumber(
+    seconds * RATES.rbcPerSec
+  );
+  // Breaths
+  document.getElementById('breathsTaken').innerText = formatNumber(
+    seconds * RATES.breathsPerSec
+  );
+  // Days asleep
+  const daysOfLife = seconds / 86400;
+  document.getElementById('daysAsleep').innerText = formatNumber(
+    daysOfLife * RATES.fractionLifeAsleep
+  );
+  // Distance around Sun
+  document.getElementById('distanceSun').innerText = formatNumber(
+    seconds * RATES.distanceSunPerSec
+  );
+  // Moon orbits
+  document.getElementById('moonOrbits').innerText = formatNumber(
+    years * RATES.moonOrbitsPerYear
+  );
+  // Coffee
+  document.getElementById('coffeesDrunk').innerText = formatNumber(
+    seconds * RATES.coffeesPerSec
+  );
+  // Population Growth
+  const populationIncrease = years * RATES.populationGrowthPerYear;
+  document.getElementById('populationGrowth').innerText = formatNumber(
+    populationIncrease
+  );
+  // Inflation
+  const inflationMultiplier = Math.pow(1 + RATES.inflationAnnualRate, years);
+  document.getElementById('inflationValue').innerText = 
+    '$' + inflationMultiplier.toFixed(2);
+  // S&P 500
+  const spMultiplier = Math.pow(1 + RATES.sp500AnnualGrowth, years) - 1;
+  document.getElementById('spGrowth').innerText = 
+    (spMultiplier * 100).toFixed(1);
+
+  animationId = requestAnimationFrame(updateStats);
+}
+
+function getSecondsSinceBirth() {
+  if (!birthDate) return 0;
+  return (Date.now() - birthDate.getTime()) / 1000;
+}
+
+function formatNumber(num) {
+  return Math.floor(num).toLocaleString();
+}
+
+/**************************************************
+ * 4. Fade-up Animation Observer
+ **************************************************/
+function initFadeUpObserver() {
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+      }
+    });
+  }, { threshold: 0.1 });
+
+  document.querySelectorAll('.fade-up').forEach((el) => {
+    observer.observe(el);
+  });
+}
+</script>
+
+</body>
+</html>
